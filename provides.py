@@ -86,8 +86,8 @@ class IntegrationRequest:
         return self._unit.unit_name
 
     def set_credentials(self,
-                        auth_url,
-                        username,
+                        vsphere_ip,
+                        user,
                         password,
                         datacenter,
                         datastore):
@@ -95,8 +95,8 @@ class IntegrationRequest:
         Set the credentials for this request.
         """
         self._unit.relation.to_publish.update({
-            'auth_url': auth_url,
-            'username': username,
+            'vsphere_ip': vsphere_ip,
+            'user': user,
             'password': password,
             'datacenter': datacenter,
             'datastore': datastore,

@@ -44,8 +44,8 @@ class VsphereIntegrationRequires(Endpoint):
     @when('endpoint.vsphere.ready')
     def vsphere_integration_ready():
         vsphere = endpoint_from_flag('endpoint.vsphere.joined')
-        update_config_enable_vsphere(vsphere.auth_url,
-                                     vsphere.username,
+        update_config_enable_vsphere(vsphere.vsphere_ip,
+                                     vsphere.user,
                                      vsphere.password,
                                      vsphere.datacenter,
                                      vsphere.datastore)
@@ -85,20 +85,20 @@ class VsphereIntegrationRequires(Endpoint):
         Whether or not the request for this instance has been completed.
         """
         return all(field is not None for field in [
-            self.auth_url,
-            self.username,
+            self.vsphere_ip,
+            self.user,
             self.password,
             self.datacenter,
             self.datastore,
         ])
 
     @property
-    def auth_url(self):
-        return self._received['auth_url']
+    def vsphere_ip(self):
+        return self._received['vsphere_ip']
 
     @property
-    def username(self):
-        return self._received['username']
+    def user(self):
+        return self._received['user']
 
     @property
     def password(self):

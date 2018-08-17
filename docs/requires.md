@@ -43,8 +43,8 @@ from charms.reactive import when, endpoint_from_flag
 @when('endpoint.vsphere.ready')
 def vsphere_integration_ready():
     vsphere = endpoint_from_flag('endpoint.vsphere.joined')
-    update_config_enable_vsphere(vsphere.auth_url,
-                                 vsphere.username,
+    update_config_enable_vsphere(vsphere.vsphere_ip,
+                                 vsphere.user,
                                  vsphere.password,
                                  vsphere.datacenter,
                                  vsphere.datastore)
@@ -54,4 +54,3 @@ def vsphere_integration_ready():
 
 
 Whether or not the request for this instance has been completed.
-

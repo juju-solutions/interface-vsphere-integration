@@ -68,8 +68,7 @@ marked completed (if ever).
 <h2 id="provides.IntegrationRequest.set_credentials">set_credentials</h2>
 
 ```python
-IntegrationRequest.set_credentials(self, auth_url, username, password, datacenter, datastore)
+IntegrationRequest.set_credentials(self, vsphere_ip, user, password, datacenter, datastore)
 ```
 
 Set the credentials for this request.
-
