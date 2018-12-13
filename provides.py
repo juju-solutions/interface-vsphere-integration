@@ -39,7 +39,7 @@ class VsphereIntegrationProvides(Endpoint):
     @when('endpoint.{endpoint_name}.changed')
     def check_requests(self):
         toggle_flag(self.expand_name('requests-pending'),
-                    len(self.all_requests) > 0)
+                    len(self.new_requests) > 0)
         clear_flag(self.expand_name('changed'))
 
     @property
