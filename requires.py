@@ -16,12 +16,17 @@ The flags that are set by the requires side of this interface are:
   features have been enabled for the vSphere instance on which the charm is
   running.  This flag is automatically removed if new integration features are
   requested.  It should not be removed by the charm.
+
+* **`endpoint.{endpoint_name}.ready.changed`** This flag is set if the data
+  changes after the ready flag was set.  This flag should be removed by the
+  charm once handled.
 """
 
 
 from charms.reactive import Endpoint
 from charms.reactive import when, when_not
-from charms.reactive import clear_flag, toggle_flag
+from charms.reactive import clear_flag, is_flag_set, set_flag, toggle_flag
+from charms.reactive import data_changed
 
 
 class VsphereIntegrationRequires(Endpoint):
@@ -55,24 +60,20 @@ class VsphereIntegrationRequires(Endpoint):
     @property
     def _received(self):
         """
-        Helper to streamline access to received data since we expect to only
-        ever be connected to a single vSphere integration application with a
-        single unit.
+        Helper to streamline access to received data.
         """
-        return self.relations[0].joined_units.received
-
-    @property
-    def _to_publish(self):
-        """
-        Helper to streamline access to received data since we expect to only
-        ever be connected to a single vSphere integration application with a
-        single unit.
-        """
-        return self.relations[0].to_publish
+        return self.all_joined_units.received
 
     @when('endpoint.{endpoint_name}.changed')
     def check_ready(self):
+        """
+        Manage flags to signal when the endpoint is ready as well as noting
+        if changes have been made since it became ready.
+        """
+        was_ready = is_flag_set(self.expand_name('ready'))
         toggle_flag(self.expand_name('ready'), self.is_ready)
+        if self.is_ready and was_ready and self.is_changed:
+            set_flag(self.expand_name('ready.changed'))
         clear_flag(self.expand_name('changed'))
 
     @when_not('endpoint.{endpoint_name}.joined')
@@ -85,6 +86,19 @@ class VsphereIntegrationRequires(Endpoint):
         Whether or not the request for this instance has been completed.
         """
         return all(field is not None for field in [
+            self.vsphere_ip,
+            self.user,
+            self.password,
+            self.datacenter,
+            self.datastore,
+        ])
+
+    @property
+    def is_changed(self):
+        """
+        Whether or not the request for this instance has changed.
+        """
+        return data_changed(self.expand_name('all-data'), [
             self.vsphere_ip,
             self.user,
             self.password,

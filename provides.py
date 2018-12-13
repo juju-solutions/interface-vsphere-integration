@@ -38,28 +38,29 @@ class VsphereIntegrationProvides(Endpoint):
     @when('endpoint.{endpoint_name}.changed')
     def check_requests(self):
         toggle_flag(self.expand_name('requests-pending'),
-                    len(self.requests) > 0)
+                    len(self.all_requests) > 0)
         clear_flag(self.expand_name('changed'))
 
     @property
-    def requests(self):
+    def all_requests(self):
         """
-        A list of the new or updated #IntegrationRequests that
-        have been made.
+        A list of all the #IntegrationRequests that have been made.
         """
-        if not hasattr(self, '_requests'):
-            all_requests = [IntegrationRequest(unit)
-                            for unit in self.all_joined_units]
-            is_changed = attrgetter('is_changed')
-            self._requests = list(filter(is_changed, all_requests))
-        return self._requests
+        return [IntegrationRequest(unit) for unit in self.all_joined_units]
+
+    @property
+    def new_requests(self):
+        """
+        A list of the new or updated #IntegrationRequests that have been made.
+        """
+        is_changed = attrgetter('is_changed')
+        return list(filter(is_changed, self.all_requests))
 
     def mark_completed(self):
         """
-        Mark all requests as completed and remove the `requests-pending` flag.
+        Remove the `requests-pending` flag.
         """
         clear_flag(self.expand_name('requests-pending'))
-        self._requests = []
 
 
 class IntegrationRequest:
@@ -94,7 +95,7 @@ class IntegrationRequest:
         """
         Set the credentials for this request.
         """
-        self._unit.relation.to_publish.update({
+        self._to_publish.update({
             'vsphere_ip': vsphere_ip,
             'user': user,
             'password': password,
@@ -105,6 +106,6 @@ class IntegrationRequest:
     @property
     def has_credentials(self):
         """
-        Whether or not credentials have been set via `set_credentials`.
+        Whether or not `set_credentials` has been called.
         """
-        return 'credentials' in self._unit.relation.to_publish
+        return 'vsphere_ip' in self._to_publish
