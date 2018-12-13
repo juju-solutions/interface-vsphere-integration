@@ -30,7 +30,8 @@ class VsphereIntegrationProvides(Endpoint):
     def handle_requests():
         vsphere = endpoint_from_flag('endpoint.vsphere.requests-pending')
         for request in vsphere.requests:
-            request.set_credentials(layer.vsphere.get_user_credentials())
+            request.set_credentials(layer.vsphere.get_vsphere_credentials())
+            request.set_config(layer.vsphere.get_vsphere_config())
         vsphere.mark_completed()
     ```
     """
@@ -75,12 +76,28 @@ class IntegrationRequest:
         return self._unit.relation.to_publish
 
     @property
+    def has_credentials(self):
+        """
+        Whether or not `set_credentials` has been called.
+        """
+        return {'vsphere_ip', 'user',
+                'password', 'datacenter'}.issubset(self._to_publish)
+
+    @property
+    def has_config(self):
+        """
+        Whether or not `set_config` has been called.
+        """
+        return {'datastore', 'folder',
+                'respool_path'}.issubset(self._to_publish)
+
+    @property
     def is_changed(self):
         """
         Whether this request has changed since the last time it was
         marked completed (if ever).
         """
-        return not self.has_credentials
+        return not (self.has_credentials and self.has_config)
 
     @property
     def unit_name(self):
@@ -90,22 +107,26 @@ class IntegrationRequest:
                         vsphere_ip,
                         user,
                         password,
-                        datacenter,
-                        datastore):
+                        datacenter):
         """
-        Set the credentials for this request.
+        Set the vsphere credentials for this request.
         """
         self._to_publish.update({
             'vsphere_ip': vsphere_ip,
             'user': user,
             'password': password,
             'datacenter': datacenter,
-            'datastore': datastore,
         })
 
-    @property
-    def has_credentials(self):
+    def set_config(self,
+                   datastore,
+                   folder,
+                   respool_path):
         """
-        Whether or not `set_credentials` has been called.
+        Set the non-credential vsphere config for this request.
         """
-        return 'vsphere_ip' in self._to_publish
+        self._to_publish.update({
+            'datastore': datastore,
+            'folder': folder,
+            'respool_path': respool_path,
+        })

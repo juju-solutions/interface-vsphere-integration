@@ -53,7 +53,9 @@ class VsphereIntegrationRequires(Endpoint):
                                      vsphere.user,
                                      vsphere.password,
                                      vsphere.datacenter,
-                                     vsphere.datastore)
+                                     vsphere.datastore,
+                                     vsphere.folder,
+                                     vsphere.respool_path)
     ```
     """
 
@@ -91,6 +93,8 @@ class VsphereIntegrationRequires(Endpoint):
             self.password,
             self.datacenter,
             self.datastore,
+            self.folder,
+            self.respool_path,
         ])
 
     @property
@@ -104,6 +108,8 @@ class VsphereIntegrationRequires(Endpoint):
             self.password,
             self.datacenter,
             self.datastore,
+            self.folder,
+            self.respool_path,
         ])
 
     @property
@@ -125,3 +131,11 @@ class VsphereIntegrationRequires(Endpoint):
     @property
     def datastore(self):
         return self._received['datastore']
+
+    @property
+    def folder(self):
+        return self._received['folder']
+
+    @property
+    def respool_path(self):
+        return self._received['respool_path']
